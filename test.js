@@ -7,6 +7,7 @@ const login_token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOjEsImxvZ2luIj
 const fetch = require('node-fetch');
 const express = require('express');
 const mysql = require('promise-mysql');
+const moment = require('moment');
 
 const DialogueAvailabilitiesDataLoader = require('./lib/dialogue-availabilities.js');
 
@@ -24,19 +25,19 @@ var bookingLoader = new DialogueBookingsDataLoader(connection);
 // Test 1 : Create 2 bookings
 /*
 var booking1 = {
-    token: '685sgr1s65r1g651g6sr',
-    startTime: '2000-04-13 11:00:00',
-    endTime: '2000-04-13 17:00:00',
+    token: '685sgr1s65r1fbfd51g6sr',
+    startTime: '2017-05-19 17:00:00',
+    endTime: '2017-05-19 17:20:00',
     location: 5,
-    specialization: 'coach'
+    specialist: 18875284
 };
 var booking2 = {
-    token: '5shr685gh65sgsr5sr',
-    startTime: '2000-04-17 13:00:00',
-    endTime: '2000-04-17 16:00:00',
+    token: '5shr685gsfbsf5sgsr5sr',
+    startTime: '2017-05-19 17:40:00',
+    endTime: '2017-05-19 18:00:00',
     location: 7,
-    specialization: 'steer'
-}
+    specialist: 18874690
+};
 bookingLoader.createBooking(booking1).then(console.log('First booking completed.'))
 bookingLoader.createBooking(booking2).then(console.log('Second booking completed.'))
 */
@@ -63,17 +64,17 @@ DialogueAvailabilitiesDataLoader.getAllUserData().then(console.log)
 
 
 // Test 4 : Retrieve all shifts
-/**/
+/*
 var startTime ="2017-05-14 00:00:00"
 var endTime = "2017-05-20 23:59:59"
 DialogueAvailabilitiesDataLoader.getAllShifts(startTime,endTime).then(console.log)
-/**/
+*/
 // Result 4 : successfully console.logged wtih mock data
 
 
 
 // Test 5 : Refine shifts to specialization
-/**/
+/*
 var spec = 'Coach';
 var specId;
 
@@ -99,7 +100,7 @@ DialogueAvailabilitiesDataLoader.getAllUserData()
     return DialogueAvailabilitiesDataLoader.getAllShiftsForSpecialization(shifts, specId)
 })
 .then(console.log)
-/**/
+*/
 // Result 5 : successfully console.logged with mock data
 
 
@@ -110,10 +111,35 @@ DialogueAvailabilitiesDataLoader.getAllUserData()
 
 // Test 8 : Return data of availabilities
 
-var startTime ="2017-05-14 05:00:00"
-var test = new Date(startTime);
-console.log(test.getHours())
+// var today = Date.now();
+// var weekStartTime = today-(today+4*24*60*60*1000)%(7*24*60*60*1000);
+// var date = new Date(2000, 03, 13);
+// console.log(date)
+// bookingLoader.getAllBookingsForDay(date).then(console.log)
 
-const moment = require('moment');
-var test2 = moment().startOf('day').fromNow();
-console.log(test2)
+
+// var startTime ="2017-05-14 05:00:00"
+// var test = new Date(startTime);
+// console.log(test.getHours())
+
+// const moment = require('moment');
+// var test2 = moment().startOf('day').fromNow();
+// console.log(test2)
+
+// var today = Date.now();
+// var weekStartTime = today-(today+4*24*60*60*1000)%(7*24*60*60*1000);
+// var date = new Date(weekStartTime);
+// console.log(moment(date).format('YYYY-MM-DD')+'%')
+// console.log(date.toDateString())
+// console.log(date+"%")
+
+const timeSlots = require('./timeSlots.js');
+
+// Tested timeSlots.getAvailableTimes()
+/*
+timeSlots.getAvailableTimes('Coach', Date.now()).then(data=>{
+    console.log(data.weekDates);
+})
+*/
+
+// timeSlots.getAvailableTimes

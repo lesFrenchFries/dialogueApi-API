@@ -4,6 +4,6 @@ CREATE TABLE bookings (
     startTime DATETIME NOT NULL,
     endTime DATETIME NOT NULL,
     location VARCHAR(50) NOT NULL,
-    specialization VARCHAR(50) NOT NULL 
-    specialist INT NOT NULL,
+    specialist INT(20) NOT NULL
 );
+
