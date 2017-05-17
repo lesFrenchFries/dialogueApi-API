@@ -21,13 +21,14 @@ for (var i = 0; i < 24 * 60/slotDuration; i++) {
 }
 
 // Generate availabilities
-var availabilities = new Array(24*60/slotDuration).fill(0);
+var availabilities = new Array(24*60/slotDuration).fill([]);
 var weekAvailabilities = new Array(7);
 
 // Testing data
-var calendarPage = 0;
-var weekStartTime = Date.now()-(Date.now()+4*24*60*60*1000)%(7*24*60*60*1000);
-var weekEndTime = Date.now()-(Date.now()+4*24*60*60*1000)%(7*24*60*60*1000) + 7*24*60*60*1000;
+var calendarPage = 0; // Date input instead
+var today = Date.now(); // Will be an input
+var weekStartTime = today-(today+4*24*60*60*1000)%(7*24*60*60*1000);
+var weekEndTime = today-(today+4*24*60*60*1000)%(7*24*60*60*1000) + 7*24*60*60*1000;
 var s = new Date (weekStartTime);
 var e = new Date (weekEndTime);
 var start_time = `${s.getFullYear()}-${s.getMonth()+1}-${s.getDate()} 00:00:00`;
@@ -81,21 +82,35 @@ DialogueAvailabilitiesDataLoader.getAllUserData()
         shiftStarts.push(tempStart.getTime());
         shiftEnds.push(tempEnd.getTime());
     })
-    console.log(shifts)
-    console.log(shiftStarts, shiftEnds)
+    console.log('shifts', shifts)
+    console.log('shiftStarts and shiftEnds', shiftStarts, shiftEnds)
+    
     for (var j = 0; j < weekAvailabilities.length; j++) { // Day by day
-        weekAvailabilities[j]=availabilities.map(x=>x);
+        weekAvailabilities[j]=availabilities.map(x=>x.slice());
+        // console.log(weekAvailabilities)
+        // // weekAvailabilities[j] = availabilities.slice()
+        // console.log('slot 1 - before', weekAvailabilities[0][0])
+        // // weekAvailabilities[0][0] = [9];
+        // // weekAvailabilities[0][0] = weekAvailabilities[0][0].concat(5);
+        // console.log('week avail', weekAvailabilities)
         for (var i = 0; i < shifts.length; i++) { // Shift by shift
-            weekAvailabilities[j] = weekAvailabilities[j].map((count,idx)=>{
+            // console.log(weekAvailabilities)
+            weekAvailabilities[j] = weekAvailabilities[j].map((slot,idx)=>{ // Slot by slot
                 var start = startIntervals[idx]*60*1000 + weekStartTime + j*24*60*60*1000;
                 var end = endIntervals[idx]*60*1000 + weekStartTime + j*24*60*60*1000;
                 // console.log(shiftStarts[i]-start,end-shiftEnds[i])
-                if (start>shiftStarts[i] && end<shiftEnds[i]) {
-                    count++;
+                if (start>shiftStarts[i] && end<shiftEnds[i]) { // If included in this shift
+                    console.log(i,j,idx)
+                    console.log(slot.length)
+                    slot = slot.concat(shifts[i].userId); // Can we push to an empty array?
+                    console.log(slot)
+                    console.log(shifts[i].userId)
+                    console.log(weekAvailabilities[j][idx])
                 }
-                return count;
+                // console.log(slot)
+                return slot;
             })
         }
     }
-    // console.log(weekAvailabilities) // Availibites are offset due to C9's time
+    console.log(weekAvailabilities) // Availabilities are offset due to C9's time
 })

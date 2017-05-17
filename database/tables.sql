@@ -5,4 +5,5 @@ CREATE TABLE bookings (
     endTime DATETIME NOT NULL,
     location VARCHAR(50) NOT NULL,
     specialization VARCHAR(50) NOT NULL 
+    specialist INT NOT NULL,
 );
