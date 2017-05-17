@@ -10,7 +10,7 @@ const mysql = require('promise-mysql');
 const moment = require('moment');
 
 const DialogueAvailabilitiesDataLoader = require('./lib/dialogue-availabilities.js');
-
+const timeSlots = require('./timeSlots.js');
 const DialogueBookingsDataLoader = require('./lib/dialogue-bookings.js');
 
 // Database / data loader initialization
@@ -105,11 +105,13 @@ DialogueAvailabilitiesDataLoader.getAllUserData()
 
 
 // Test 6 : Compare with bookings to determine availibility
-
-
 // Test 7 : For a time slot, return first name, last name, address, specialization and time slow
-
 // Test 8 : Return data of availabilities
+timeSlots.getAvailableTimes('Coach', Date.now())
+.then(data=>timeSlots.getFreeSlots(data))
+.then(console.log)
+
+
 
 // var today = Date.now();
 // var weekStartTime = today-(today+4*24*60*60*1000)%(7*24*60*60*1000);
@@ -145,7 +147,3 @@ timeSlots.getAvailableTimes('Coach', Date.now()).then(data=>{
 timeSlots.getAvailableTimes('Coach', Date.now())
 .then(data=>timeSlots.getFreeSlots(data))
 .then(console.log)
-// .then(out=>{
-//     console.log(out,'OKAY')
-    
-// });

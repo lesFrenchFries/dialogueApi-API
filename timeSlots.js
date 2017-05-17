@@ -2,7 +2,6 @@ const DialogueAvailabilitiesDataLoader = require('./lib/dialogue-availabilities.
 const DialogueBookingsDataLoader = require('./lib/dialogue-bookings.js');
 
 const mysql = require('promise-mysql');
-// const moment = require('moment');
 
 // Database / booking loader initialization
 var connection = mysql.createPool({
@@ -23,20 +22,6 @@ for (var i = 0; i < 24 * 60/slotDuration; i++) {
 // Generate availabilities
 var availabilities = new Array(24*60/slotDuration).fill([]);
 var weekAvailabilities = new Array(7);
-
-// Testing data
-// var calendarPage = 0; // Date input instead
-// var today = Date.now(); // Will be an input
-// var weekStartTime = today-(today+4*24*60*60*1000)%(7*24*60*60*1000);
-// var weekEndTime = today-(today+4*24*60*60*1000)%(7*24*60*60*1000) + 7*24*60*60*1000;
-// var s = new Date (weekStartTime);
-// var e = new Date (weekEndTime);
-// var start_time = `${s.getFullYear()}-${s.getMonth()+1}-${s.getDate()} 00:00:00`;
-// var end_time = `${e.getFullYear()}-${e.getMonth()+1}-${e.getDate()} 00:00:00`;
-// console.log(new Date(weekStartTime))
-// console.log(new Date(weekEndTime))
-// console.log(start_time,end_time)
-
 
 class TimeSlots {
     
