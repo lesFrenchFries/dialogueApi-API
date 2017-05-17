@@ -142,4 +142,6 @@ timeSlots.getAvailableTimes('Coach', Date.now()).then(data=>{
 })
 */
 
-// timeSlots.getAvailableTimes
+timeSlots.getAvailableTimes('Coach', Date.now())
+.then(data=>timeSlots.getFreeSlots(data))
+.then(console.log);
