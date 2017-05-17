@@ -8,9 +8,9 @@ const fetch = require('node-fetch');
 const express = require('express');
 const mysql = require('promise-mysql');
 
-var DialogueAvailabilitiesDataLoader = require('./lib/dialogue-availabilities.js');
+const DialogueAvailabilitiesDataLoader = require('./lib/dialogue-availabilities.js');
 
-var DialogueBookingsDataLoader = require('./lib/dialogue-bookings.js');
+const DialogueBookingsDataLoader = require('./lib/dialogue-bookings.js');
 
 // Database / data loader initialization
 var connection = mysql.createPool({
@@ -63,26 +63,25 @@ DialogueAvailabilitiesDataLoader.getAllUserData().then(console.log)
 
 
 // Test 4 : Retrieve all shifts
-/*
+/**/
 var startTime ="2017-05-14 00:00:00"
 var endTime = "2017-05-20 23:59:59"
 DialogueAvailabilitiesDataLoader.getAllShifts(startTime,endTime).then(console.log)
-*/
+/**/
 // Result 4 : successfully console.logged wtih mock data
 
 
 
 // Test 5 : Refine shifts to specialization
-/*
-var spec = 'Drummer';
+/**/
+var spec = 'Coach';
 var specId;
 
-// Get all data*/
+// Get all data
 DialogueAvailabilitiesDataLoader.getAllUserData()
 .then(data=>{
-    console.log(data)
-    // return DialogueAvailabilitiesDataLoader.getAllSpecializations(data)
-})/*
+    return DialogueAvailabilitiesDataLoader.getAllSpecializations(data)
+})
 // Get all specializations to find the specId
 .then(specs => { 
     specs.forEach(thisSpec => {
@@ -93,14 +92,14 @@ DialogueAvailabilitiesDataLoader.getAllUserData()
 })
 // Get all shifts
 .then(() => { 
-    return DialogueAvailabilitiesDataLoader.getAllShifts();
+    return DialogueAvailabilitiesDataLoader.getAllShifts(startTime,endTime);
 })
 // Get all shifts for specId
 .then(shifts => {
     return DialogueAvailabilitiesDataLoader.getAllShiftsForSpecialization(shifts, specId)
 })
 .then(console.log)
-*/
+/**/
 // Result 5 : successfully console.logged with mock data
 
 
@@ -110,3 +109,11 @@ DialogueAvailabilitiesDataLoader.getAllUserData()
 // Test 7 : For a time slot, return first name, last name, address, specialization and time slow
 
 // Test 8 : Return data of availabilities
+
+var startTime ="2017-05-14 05:00:00"
+var test = new Date(startTime);
+console.log(test.getHours())
+
+const moment = require('moment');
+var test2 = moment().startOf('day').fromNow();
+console.log(test2)

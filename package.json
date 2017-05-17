@@ -19,6 +19,7 @@
   "dependencies": {
     "express": "^4.15.2",
     "knex": "^0.13.0",
+    "moment": "^2.18.1",
     "promise-mysql": "^3.0.1",
     "superagent": "^3.5.2"
   }
