@@ -140,7 +140,29 @@ class TimeSlots {
                     return specialists;
                 })
             })
-        });
+        })
+        .then(avails=>{ // Format the output for the front-end
+            var output = (new Array(7)).fill({});
+            avails.forEach((emptyArr,day)=>{ // Day by day
+                var date = new Date(weekDates[day]);
+                var slots = [];
+                avails[day].forEach((slot,idx)=>{ // Time slot by time slot
+                    if (slot.length>0) { // If a specialist is available
+                        var slotObj = {
+                            start: (new Date(this.startIntervals[idx]*60*1000)).toTimeString(),
+                            end: (new Date(this.endIntervals[idx]*60*1000)).toTimeString(),
+                            specialists: slot
+                        };
+                        slots = slots.concat(slotObj);
+                    }
+                });
+                output[day] = { 
+                    date: date.toDateString(),
+                    slots: slots
+                };
+            });
+            return output;
+        })
     }
     
 }
