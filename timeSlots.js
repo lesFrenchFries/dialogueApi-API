@@ -113,25 +113,22 @@ class TimeSlots {
             }
             // console.log(output)
             return output;
-        })
+        });
     }
     
     getFreeSlots(input) {
         var weekAvailabilities = input.weekAvailabilities;
         var weekDates = input.weekDates;
-        // console.log('Start of method 2', this)
-        
-        // Query by date for each day (Will require some time format manipulations)
-        weekDates.forEach((date,day)=>{ // Day by day
-            bookingLoader.getAllBookingsForDay(date)
-            .then(bookings => { // Verify for each time slot
-                weekAvailabilities[day]=weekAvailabilities[day].map((specialists,idx) => { // Slot by slot
+
+        return bookingLoader.getAllBookingsForWeek(weekDates[0])
+        .then(bookings => {
+            return weekDates.map((date,day)=>{ // Day by day
+                 return weekAvailabilities[day]=weekAvailabilities[day].map((specialists,idx) => { // Slot by slot
                     var startTimeInMins = this.startIntervals[idx];
                     var startTimeMin = startTimeInMins%60;
                     var startTimeHour = Math.floor(startTimeInMins/60);
                     var startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), startTimeHour, startTimeMin);
                     bookings.forEach(booking => { // Booking by booking
-                        // console.log(booking.startTime, startDate)
                         if (booking.startTime.toString() == startDate.toString()) { // If this slot matches a booking, remove the specialist of that booking
                             // console.log('Match!');
                             var index = specialists.indexOf(booking.specialist);
@@ -140,19 +137,10 @@ class TimeSlots {
                             }
                         }
                     })
-                    // console.log('End of method 2',this)
-                    // console.log(specialists, 'yo')
                     return specialists;
                 })
-                // console.log(weekAvailabilities)
-            });
-        }).then(()=>{
-            console.log(weekAvailabilities, 'YOYO');
-            
-        })
-        // Return the result in the output format
-        // console.log(weekAvailabilities)
-        // return weekAvailabilities;
+            })
+        });
     }
     
 }

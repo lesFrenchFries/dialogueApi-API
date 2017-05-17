@@ -144,4 +144,8 @@ timeSlots.getAvailableTimes('Coach', Date.now()).then(data=>{
 
 timeSlots.getAvailableTimes('Coach', Date.now())
 .then(data=>timeSlots.getFreeSlots(data))
-.then(console.log);
+.then(console.log)
+// .then(out=>{
+//     console.log(out,'OKAY')
+    
+// });
