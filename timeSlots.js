@@ -2,6 +2,7 @@ const DialogueAvailabilitiesDataLoader = require('./lib/dialogue-availabilities.
 const DialogueBookingsDataLoader = require('./lib/dialogue-bookings.js');
 
 const mysql = require('promise-mysql');
+const moment = require('moment');
 
 // Database / booking loader initialization
 var connection = mysql.createPool({
@@ -127,8 +128,8 @@ class TimeSlots {
                 avails[day].forEach((slot,idx)=>{ // Time slot by time slot
                     if (slot.length>0) { // If a specialist is available
                         var slotObj = {
-                            start: (new Date(this.startIntervals[idx]*60*1000)).toTimeString(),
-                            end: (new Date(this.endIntervals[idx]*60*1000)).toTimeString(),
+                            start: moment(this.startIntervals[idx]*60*1000).format('HH:mm'),
+                            end: moment(this.endIntervals[idx]*60*1000).format('HH:mm'),
                             specialists: slot
                         };
                         slots = slots.concat(slotObj);

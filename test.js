@@ -57,7 +57,7 @@ bookingLoader.getAllBookingsForSpecialization(spec).then(console.log);
 
 // Test 3 : Fetch all WIW data
 /**/
-DialogueAvailabilitiesDataLoader.getAllUserData().then(console.log)
+// DialogueAvailabilitiesDataLoader.getAllUserData().then(console.log)
 /**/
 // Result 3 : successfully console.logged the whole data object
 
@@ -115,7 +115,7 @@ DialogueAvailabilitiesDataLoader.getAllUserData()
 
 // var today = Date.now();
 // var weekStartTime = today-(today+4*24*60*60*1000)%(7*24*60*60*1000);
-// var date = new Date(2000, 03, 13);
+// var date = new D*ate(2000, 03, 13);
 // console.log(date)
 // bookingLoader.getAllBookingsForDay(date).then(console.log)
 
@@ -143,4 +143,28 @@ timeSlots.getAvailableTimes('Coach', Date.now()).then(data=>{
 })
 */
 
+var outputTime = moment((17*60+20)*60*1000).format('HH:mm');
+var inputDate1 = "2017-05-18";
+var today = (new Date(inputDate1)).getTime();
+var weekStartTime = today-(today+4*24*60*60*1000)%(7*24*60*60*1000);
+var tempDate = new Date(weekStartTime+2*24*60*60*1000);
+var outputDate = new Date(tempDate);
+var tempDate2 = moment(outputDate).format('YYYY-MM-DD');
+var tempDate3 = tempDate2 + " " + outputTime + ":00";
 
+var timeInput = outputTime;
+var dateInput = outputDate;
+console.log(timeInput, dateInput)
+var bookingStartTime = moment(dateInput).format('YYYY-MM-DD') + " " + outputTime + ":00";
+console.log(bookingStartTime)
+var timeInputs = timeInput.split(':');
+var endMinutes = parseInt(timeInputs[1])+20;
+var endHours;
+if (endMinutes == 60) {
+    endMinutes = 0;
+    endHours = parseInt(timeInputs[0])+1;
+} else {
+    endHours = timeInputs[0];
+}
+var bookingEndTime = moment(dateInput).format('YYYY-MM-DD') + " " + endHours + ":" + endMinutes + ":00";
+console.log(bookingEndTime)
