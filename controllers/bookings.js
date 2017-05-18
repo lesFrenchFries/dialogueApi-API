@@ -26,10 +26,28 @@ module.exports = (bookingLoader) => {
             var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
             var specializations = DialogueAvailabilitiesDataLoader.getAllSpecializations(data);
             // Use specId to find specialization in specializations
+            specializations.forEach(spec=>{
+                if (spec.id == specId) {
+                    rawOutput.specialization = spec.spec;
+                }
+            })
             // Use specId to find firstName, lastName and locationId in professionals
+            professionals.forEach(profession=>{
+                if (profession.specId == specId) {
+                    rawOutput.firstName = profession.firstName;
+                    rawOutput.lastName = profession.lastName;
+                    rawOutput.locationId = profession.locationId;
+                }
+            })
             // Use locationId to find address in locations
-            
+            locations.forEach(location=>{
+                if (location.id == rawOutput.locationId) {
+                    rawOutput.address = location.address;
+                }
+            })
             // FORMAT OUTPUT ACCORDINGLY
+            var formattedOutput = {};
+            
             // RETURN OUTPUT
         }).catch(alert)
     })
