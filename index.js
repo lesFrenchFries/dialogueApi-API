@@ -5,6 +5,7 @@ const mysql = require('promise-mysql');
 // Express middleware
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const jwt = require('express-jwt');
 
 // Data loader
 // const DialogueAvailabilitiesDataLoader = require('./lib/dialogue-availabilities.js');
@@ -23,9 +24,13 @@ const app = express();
 app.use(cors());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
-
+app.use((req,res,next) => {
+    console.log(req.headers);
+    next();
+})
+app.use(jwt({secret: process.env.AUTH0_SECRET}));
 app.use('/availabilities', availabilities(timeSlots));
-app.use('/bookings', bookings(bookingLoader));
+app.use('/bookings', bookings(bookingLoader, timeSlots));
 
 
 // Start the server

@@ -4,6 +4,7 @@ module.exports = (timeSlots) => {
     const availabilities = express.Router();
     
     availabilities.get('/', (req, res) => {
+        console.log(req.user);
         var spec = req.query.spec;
         var date = (new Date(req.query.date)).getTime();
         timeSlots.getAvailableTimes(spec,date)

@@ -2,15 +2,17 @@ const express = require('express');
 const moment = require('moment');
 const DialogueAvailabilitiesDataLoader = require('../lib/dialogue-availabilities.js');
 
-module.exports = (bookingLoader) => {
+module.exports = (bookingLoader, timeSlots) => {
     const bookings = express.Router();
     
     bookings.post('/', (req,res) => {
         // Request data extraction
-        var userId = req.body.userId;
+        // var userId = req.body.userId; // NO LONGER AN INPUT, TO BE COMPUTED
         var date = req.body.date; // 2000-04-13T00:00:00.000Z
         var time = req.body.time; // HH:mm
-        var token = req.body.token;
+        var token = req.body.token; // OBSOLETE
+        var sub = req.user.sub;
+        var spec = req.body.spec; // NEW ADDITION
         
         // Format start time for booking
         var formattedStart = moment(date).format('YYYY-MM-DD') + " " + time + ":00";
@@ -29,17 +31,34 @@ module.exports = (bookingLoader) => {
         
         // Preparing data for booking
         var bookingData = {
-            token: token,
-            startTime: formattedStart, // ADD TIME
-            endTime: formattedEnd, // ADD TIME, PLUS 20 MINS
+            sub: sub,
+            startTime: formattedStart, 
+            endTime: formattedEnd, 
             location: Math.ceil(10*Math.random()), // WE AREN'T USING THIS AS OF NOW
-            specialist: userId
+            // specialist: userId // NO LONGER AVAILABLE, NEEDS TO BE COMPUTED
         };
         
         var rawOutput = {};
-        
+        // Compute userId
+        timeSlots.getAvailableTimes(spec,(new Date(date)).getTime())
+        .then(data=>timeSlots.getFreeSlots(data))
+        .then(avails=>{
+            var day = 0;
+            avails.forEach((today,idx)=>{
+                if (moment(today.date).format('YYYY-MM-DD') == moment(date).format('YYYY-MM-DD')) {
+                    day = idx;
+                }
+            });
+            avails[day].slots.forEach(slot=>{
+                if (slot.start == time) {
+                    bookingData.specialist = slot.specialists[0];
+                }
+            })
+        })
         // Create booking
-        bookingLoader.createBooking(bookingData)
+        .then(()=>{
+            bookingLoader.createBooking(bookingData)
+        })    
         .then(data => {
             rawOutput.data = data;
             return DialogueAvailabilitiesDataLoader.getAllUserData()
@@ -52,7 +71,7 @@ module.exports = (bookingLoader) => {
             
             // Use userId to find firstName, lastName and locationId in professionals
             professionals.forEach(professional=>{
-                if (professional.id == userId) {
+                if (professional.id == bookingData.specialist) {
                     rawOutput.firstName = professional.firstName;
                     rawOutput.lastName = professional.lastName;
                     rawOutput.locationId = professional.locationId;
@@ -87,10 +106,9 @@ module.exports = (bookingLoader) => {
             return formattedOutput;
         })
         .then(booking => {
-            console.log(booking);
             return res.status(201).json(booking);
         })
-        .catch(console.error)
+        .catch(console.error);
     })
 
     return bookings;
