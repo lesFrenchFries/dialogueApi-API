@@ -56,9 +56,9 @@ bookingLoader.getAllBookingsForSpecialization(spec).then(console.log);
 
 
 // Test 3 : Fetch all WIW data
-/*
+/**/
 DialogueAvailabilitiesDataLoader.getAllUserData().then(console.log)
-*/
+/**/
 // Result 3 : successfully console.logged the whole data object
 
 
@@ -107,9 +107,9 @@ DialogueAvailabilitiesDataLoader.getAllUserData()
 // Test 6 : Compare with bookings to determine availibility
 // Test 7 : For a time slot, return first name, last name, address, specialization and time slow
 // Test 8 : Return data of availabilities
-timeSlots.getAvailableTimes('Coach', Date.now())
-.then(data=>timeSlots.getFreeSlots(data))
-.then(console.log)
+// timeSlots.getAvailableTimes('Coach', Date.now())
+// .then(data=>timeSlots.getFreeSlots(data))
+// .then(console.log)
 
 
 
@@ -135,7 +135,6 @@ timeSlots.getAvailableTimes('Coach', Date.now())
 // console.log(date.toDateString())
 // console.log(date+"%")
 
-const timeSlots = require('./timeSlots.js');
 
 // Tested timeSlots.getAvailableTimes()
 /*
@@ -144,6 +143,4 @@ timeSlots.getAvailableTimes('Coach', Date.now()).then(data=>{
 })
 */
 
-timeSlots.getAvailableTimes('Coach', Date.now())
-.then(data=>timeSlots.getFreeSlots(data))
-.then(console.log)
+
