@@ -10,11 +10,11 @@ module.exports = (bookingLoader, timeSlots) => {
         // Request data extraction
         // var userId = req.body.userId; // NO LONGER AN INPUT, TO BE COMPUTED
         var date = req.body.date; // 2000-04-13T00:00:00.000Z
-        var time = req.body.time; // HH:mm
-        var token = req.body.token; // OBSOLETE
+        var time = req.body.startTime; // HH:mm
+        // var token = req.body.token; // OBSOLETE
         var sub = req.user.sub;
         var spec = req.body.spec; // NEW ADDITION
-        
+        console.log(req.body)
         // Format start time for booking
         var formattedStart = moment(date).format('YYYY-MM-DD') + " " + time + ":00";
         
@@ -115,7 +115,7 @@ module.exports = (bookingLoader, timeSlots) => {
     })
     
     // Endpoint to view a booking
-    bookings.post('/:id', (req,res) => {
+    bookings.get('/:id', (req,res) => {
         var rawOutput = {}
         // Retrieve booking
         bookingLoader.getBooking({
@@ -123,6 +123,7 @@ module.exports = (bookingLoader, timeSlots) => {
             sub: req.user.sub
         })
         .then(output=>{
+            console.log(output, 'output')
             rawOutput = {
                 id: output[0].id,
                 timeSlot: output[0].startTime,
