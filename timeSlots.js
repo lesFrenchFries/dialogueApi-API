@@ -44,7 +44,7 @@ class TimeSlots {
         var e = new Date (weekEndTime);
         var start_time = `${s.getFullYear()}-${s.getMonth()+1}-${s.getDate()} 00:00:00`;
         var end_time = `${e.getFullYear()}-${e.getMonth()+1}-${e.getDate()} 00:00:00`;
-
+        
         // Get all data
         return DialogueAvailabilitiesDataLoader.getAllUserData()
         .then(DialogueAvailabilitiesDataLoader.getAllSpecializations)
@@ -130,7 +130,7 @@ class TimeSlots {
                         var slotObj = {
                             start: moment(this.startIntervals[idx]*60*1000).format('HH:mm'),
                             end: moment(this.endIntervals[idx]*60*1000).format('HH:mm'),
-                            specialists: slot
+                            specialists: slot // NO LONGER USED
                         };
                         slots = slots.concat(slotObj);
                     }

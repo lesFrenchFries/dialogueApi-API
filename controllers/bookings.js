@@ -5,6 +5,7 @@ const DialogueAvailabilitiesDataLoader = require('../lib/dialogue-availabilities
 module.exports = (bookingLoader, timeSlots) => {
     const bookings = express.Router();
     
+    // Endpoint to create a booking
     bookings.post('/', (req,res) => {
         // Request data extraction
         // var userId = req.body.userId; // NO LONGER AN INPUT, TO BE COMPUTED
@@ -57,10 +58,10 @@ module.exports = (bookingLoader, timeSlots) => {
         })
         // Create booking
         .then(()=>{
-            bookingLoader.createBooking(bookingData)
+            return bookingLoader.createBooking(bookingData)
         })    
-        .then(data => {
-            rawOutput.data = data;
+        .then(id => {
+            rawOutput.id = id[0].id;
             return DialogueAvailabilitiesDataLoader.getAllUserData()
         })
         .then(data => {
@@ -95,12 +96,14 @@ module.exports = (bookingLoader, timeSlots) => {
             
             // Format output 
             var formattedOutput = {
+                id: rawOutput.id,
                 firstName: rawOutput.firstName,
                 lastName: rawOutput.lastName,
                 address: rawOutput.address,
                 time: formattedStart,
                 specialization: rawOutput.specialization
             };
+            
             
             // Return output
             return formattedOutput;
@@ -109,6 +112,71 @@ module.exports = (bookingLoader, timeSlots) => {
             return res.status(201).json(booking);
         })
         .catch(console.error);
+    })
+    
+    // Endpoint to view a booking
+    bookings.post('/:id', (req,res) => {
+        var rawOutput = {}
+        // Retrieve booking
+        bookingLoader.getBooking({
+            id: req.params.id,
+            sub: req.user.sub
+        })
+        .then(output=>{
+            rawOutput = {
+                id: output[0].id,
+                timeSlot: output[0].startTime,
+                specialist: output[0].specialist
+            }
+            console.log(rawOutput)
+            return DialogueAvailabilitiesDataLoader.getAllUserData()
+        })
+        .then(data=>{
+            // Get all reference arrays
+            var professionals = DialogueAvailabilitiesDataLoader.getAllProfessionals(data);
+            var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
+            var specializations = DialogueAvailabilitiesDataLoader.getAllSpecializations(data);
+            
+            // Use userId to find firstName, lastName and locationId in professionals
+            professionals.forEach(professional=>{
+                if (professional.id == rawOutput.specialist) {
+                    rawOutput.firstName = professional.firstName;
+                    rawOutput.lastName = professional.lastName;
+                    rawOutput.locationId = professional.locationId;
+                    rawOutput.specId = professional.specId
+                }
+            })
+            
+            // Use locationId to find address in locations
+            locations.forEach(location=>{
+                if (location.id == rawOutput.locationId) {
+                    rawOutput.address = location.address;
+                }
+            })
+            
+            // Use specId to find specialization in specializations
+            specializations.forEach(spec=>{
+                if (spec.id == rawOutput.specId[0]) {
+                    rawOutput.specialization = spec.spec;
+                }
+            })
+            
+            // Format output 
+            var formattedOutput = {
+                id: rawOutput.id,
+                firstName: rawOutput.firstName,
+                lastName: rawOutput.lastName,
+                address: rawOutput.address,
+                time: rawOutput.timeSlot,
+                specialization: rawOutput.specialization
+            };
+            
+            
+            // Return output
+            return res.json(formattedOutput);
+            
+        })
+        .catch(console.error)
     })
 
     return bookings;
