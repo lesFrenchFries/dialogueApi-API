@@ -1,0 +1,31 @@
+{
+  "name": "dialogueapp-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SebastienVuong/dialogueApp-API.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SebastienVuong/dialogueApp-API/issues"
+  },
+  "homepage": "https://github.com/SebastienVuong/dialogueApp-API#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cors": "^2.8.3",
+    "express": "^4.15.2",
+    "express-jwt": "^5.3.0",
+    "knex": "^0.13.0",
+    "mailgun-js": "^0.10.1",
+    "moment": "^2.18.1",
+    "morgan": "^1.8.1",
+    "promise-mysql": "^3.0.1",
+    "superagent": "^3.5.2"
+  }
+}
