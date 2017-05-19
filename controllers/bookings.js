@@ -1,19 +1,26 @@
 const express = require('express');
 const moment = require('moment');
+const Mailgun = require('mailgun-js');
 const DialogueAvailabilitiesDataLoader = require('../lib/dialogue-availabilities.js');
+
+
 
 module.exports = (bookingLoader, timeSlots) => {
     const bookings = express.Router();
     
     // Endpoint to create a booking
     bookings.post('/', (req,res) => {
+        const api_key = 'key-688361c93fe7397aebfb4c178222bc7f';
+        const domain = 'sandbox360d58a0a54e4130994c396babfee2ba.mailgun.org';
+        const from_who = 'teamfrenchfries.mtl@gmail.com';
+
         // Request data extraction
-        // var userId = req.body.userId; // NO LONGER AN INPUT, TO BE COMPUTED
         var date = req.body.date; // 2000-04-13T00:00:00.000Z
         var time = req.body.startTime; // HH:mm
-        // var token = req.body.token; // OBSOLETE
         var sub = req.user.sub;
-        var spec = req.body.spec; // NEW ADDITION
+        var spec = req.body.spec;
+        var email = req.body.mail;
+        console.log(req.body.mail)
         
         // Format start time for booking
         var formattedStart = moment(date).format('YYYY-MM-DD') + " " + time + ":00";
@@ -36,7 +43,6 @@ module.exports = (bookingLoader, timeSlots) => {
             startTime: formattedStart, 
             endTime: formattedEnd, 
             location: Math.ceil(10*Math.random()), // WE AREN'T USING THIS AS OF NOW
-            // specialist: userId // NO LONGER AVAILABLE, NEEDS TO BE COMPUTED
         };
         
         var rawOutput = {};
@@ -68,7 +74,7 @@ module.exports = (bookingLoader, timeSlots) => {
         .then(data => {
             // Get all reference arrays
             var professionals = DialogueAvailabilitiesDataLoader.getAllProfessionals(data);
-            var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
+            // var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
             var specializations = DialogueAvailabilitiesDataLoader.getAllSpecializations(data);
             
             // Use userId to find firstName, lastName and locationId in professionals
@@ -76,17 +82,17 @@ module.exports = (bookingLoader, timeSlots) => {
                 if (professional.id == bookingData.specialist) {
                     rawOutput.firstName = professional.firstName;
                     rawOutput.lastName = professional.lastName;
-                    rawOutput.locationId = professional.locationId;
+                    // rawOutput.locationId = professional.locationId;
                     rawOutput.specId = professional.specId
                 }
             })
             
-            // Use locationId to find address in locations
-            locations.forEach(location=>{
-                if (location.id == rawOutput.locationId) {
-                    rawOutput.address = location.address;
-                }
-            })
+            // // Use locationId to find address in locations
+            // locations.forEach(location=>{
+            //     if (location.id == rawOutput.locationId) {
+            //         rawOutput.address = location.address;
+            //     }
+            // })
             
             // Use specId to find specialization in specializations
             specializations.forEach(spec=>{
@@ -100,14 +106,34 @@ module.exports = (bookingLoader, timeSlots) => {
                 id: rawOutput.id,
                 firstName: rawOutput.firstName,
                 lastName: rawOutput.lastName,
-                address: rawOutput.address,
+                // address: rawOutput.address,
                 time: formattedStart,
-                specialization: rawOutput.specialization
+                specialization: rawOutput.specialization,
+                email: email
             };
-            
             
             // Return output
             return formattedOutput;
+        })
+        .then(booking => {
+            var mailgun = new Mailgun({apiKey: api_key, domain: domain});
+
+            // Declare message parameters
+            var data = {
+                from: from_who,
+                to: booking.email, // email to be computed
+                subject: 'Your appointment confirmation for ' + booking.time,
+                text: `
+                This email is to confirm your appointment on ${booking.time}.
+                ${booking.specialization}: ${booking.lastName}, ${booking.firstName}
+                Booking link: https://dialogueapp-api-sebastienvuong.c9users.io/bookings/${booking.id}
+                ` // Booking link to be changed when hosted online
+            }
+            
+            mailgun.messages().send(data, function (error, body) {
+                console.log(body);
+            })
+            return booking;
         })
         .then(booking => {
             return res.status(201).json(booking);
@@ -118,7 +144,7 @@ module.exports = (bookingLoader, timeSlots) => {
     // Endpoint to view a booking
     bookings.get('/:id', (req,res) => {
         var rawOutput = {}
-        var validBooking = true;
+        // var validBooking = true;
         
         // Retrieve booking
         bookingLoader.getBooking({
@@ -126,16 +152,16 @@ module.exports = (bookingLoader, timeSlots) => {
             sub: req.user.sub
         })
         .then(output=>{
-            if (output.length==1) {
+            // if (output.length==0) {
                 rawOutput = {
                 id: output[0].id,
                 timeSlot: output[0].startTime,
                 specialist: output[0].specialist
                 };
-            } else {
-                console.log('INVALID BOOKING!!')
-                validBooking = false;
-            }
+            // } else {
+            //     console.log('INVALID BOOKING!!')
+            //     validBooking = false;
+            // }
 
             return DialogueAvailabilitiesDataLoader.getAllUserData()
         })
@@ -164,7 +190,7 @@ module.exports = (bookingLoader, timeSlots) => {
             
             // Use specId to find specialization in specializations
             specializations.forEach(spec=>{
-                if (validBooking && spec.id == rawOutput.specId[0]) {
+                if (/*validBooking && */spec.id == rawOutput.specId[0]) {
                     rawOutput.specialization = spec.spec;
                 }
             })
@@ -180,14 +206,15 @@ module.exports = (bookingLoader, timeSlots) => {
             };
 
             // Return output
-            if (validBooking) {
-                return res.json(formattedOutput);
-            } else {
-                return res.json({invalidBooking: !validBooking});
-            }
+            return res.json(formattedOutput);
+            // if (validBooking) {
+            //     return res.json(formattedOutput);
+            // } else {
+            //     return res.json({invalidBooking: !validBooking});
+            // }
         })
-        .catch(console.error)
-    })
+        .catch(err => res.status(403).json(err))
+    }) 
 
     return bookings;
 };

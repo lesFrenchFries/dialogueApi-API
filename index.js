@@ -8,7 +8,6 @@ const morgan = require('morgan');
 const jwt = require('express-jwt');
 
 // Data loader
-// const DialogueAvailabilitiesDataLoader = require('./lib/dialogue-availabilities.js');
 const timeSlots = require('./timeSlots.js');
 const DialogueBookingsDataLoader = require('./lib/dialogue-bookings.js');
 
@@ -24,10 +23,6 @@ const app = express();
 app.use(cors());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
-// app.use((req,res,next) => {
-//     console.log(req.headers);
-//     next();
-// })
 app.use(jwt({secret: process.env.AUTH0_SECRET}));
 app.use('/availabilities', availabilities(timeSlots));
 app.use('/bookings', bookings(bookingLoader, timeSlots));

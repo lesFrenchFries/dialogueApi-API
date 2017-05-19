@@ -48,6 +48,7 @@ class TimeSlots {
         // Get all data
         return DialogueAvailabilitiesDataLoader.getAllUserData()
         .then(DialogueAvailabilitiesDataLoader.getAllSpecializations)
+        
         // Get all specializations to find the specId
         .then(specs => { 
             specs.forEach(thisSpec => {
