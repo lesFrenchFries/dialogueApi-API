@@ -14,7 +14,7 @@ module.exports = (bookingLoader, timeSlots) => {
         // var token = req.body.token; // OBSOLETE
         var sub = req.user.sub;
         var spec = req.body.spec; // NEW ADDITION
-        console.log(req.body)
+        
         // Format start time for booking
         var formattedStart = moment(date).format('YYYY-MM-DD') + " " + time + ":00";
         
@@ -40,6 +40,7 @@ module.exports = (bookingLoader, timeSlots) => {
         };
         
         var rawOutput = {};
+
         // Compute userId
         timeSlots.getAvailableTimes(spec,(new Date(date)).getTime())
         .then(data=>timeSlots.getFreeSlots(data))
@@ -117,19 +118,25 @@ module.exports = (bookingLoader, timeSlots) => {
     // Endpoint to view a booking
     bookings.get('/:id', (req,res) => {
         var rawOutput = {}
+        var validBooking = true;
+        
         // Retrieve booking
         bookingLoader.getBooking({
             id: req.params.id,
             sub: req.user.sub
         })
         .then(output=>{
-            console.log(output, 'output')
-            rawOutput = {
+            if (output.length==1) {
+                rawOutput = {
                 id: output[0].id,
                 timeSlot: output[0].startTime,
                 specialist: output[0].specialist
+                };
+            } else {
+                console.log('INVALID BOOKING!!')
+                validBooking = false;
             }
-            console.log(rawOutput)
+
             return DialogueAvailabilitiesDataLoader.getAllUserData()
         })
         .then(data=>{
@@ -157,7 +164,7 @@ module.exports = (bookingLoader, timeSlots) => {
             
             // Use specId to find specialization in specializations
             specializations.forEach(spec=>{
-                if (spec.id == rawOutput.specId[0]) {
+                if (validBooking && spec.id == rawOutput.specId[0]) {
                     rawOutput.specialization = spec.spec;
                 }
             })
@@ -171,11 +178,13 @@ module.exports = (bookingLoader, timeSlots) => {
                 time: rawOutput.timeSlot,
                 specialization: rawOutput.specialization
             };
-            
-            
+
             // Return output
-            return res.json(formattedOutput);
-            
+            if (validBooking) {
+                return res.json(formattedOutput);
+            } else {
+                return res.json({invalidBooking: !validBooking});
+            }
         })
         .catch(console.error)
     })
