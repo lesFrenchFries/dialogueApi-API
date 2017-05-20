@@ -20,8 +20,7 @@ module.exports = (bookingLoader, timeSlots) => {
         var sub = req.user.sub;
         var spec = req.body.spec;
         var email = req.body.mail;
-        console.log(req.body.mail)
-        
+
         // Format start time for booking
         var formattedStart = moment(date).format('YYYY-MM-DD') + " " + time + ":00";
         
@@ -67,14 +66,13 @@ module.exports = (bookingLoader, timeSlots) => {
         .then(()=>{
             return bookingLoader.createBooking(bookingData)
         })    
-        .then(id => {
-            rawOutput.id = id[0].id;
+        .then(booking => {
+            rawOutput.id = booking[0].id;
             return DialogueAvailabilitiesDataLoader.getAllUserData()
         })
         .then(data => {
             // Get all reference arrays
             var professionals = DialogueAvailabilitiesDataLoader.getAllProfessionals(data);
-            // var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
             var specializations = DialogueAvailabilitiesDataLoader.getAllSpecializations(data);
             
             // Use userId to find firstName, lastName and locationId in professionals
@@ -82,18 +80,10 @@ module.exports = (bookingLoader, timeSlots) => {
                 if (professional.id == bookingData.specialist) {
                     rawOutput.firstName = professional.firstName;
                     rawOutput.lastName = professional.lastName;
-                    // rawOutput.locationId = professional.locationId;
                     rawOutput.specId = professional.specId
                 }
             })
-            
-            // // Use locationId to find address in locations
-            // locations.forEach(location=>{
-            //     if (location.id == rawOutput.locationId) {
-            //         rawOutput.address = location.address;
-            //     }
-            // })
-            
+
             // Use specId to find specialization in specializations
             specializations.forEach(spec=>{
                 if (spec.id == rawOutput.specId[0]) {
@@ -106,7 +96,6 @@ module.exports = (bookingLoader, timeSlots) => {
                 id: rawOutput.id,
                 firstName: rawOutput.firstName,
                 lastName: rawOutput.lastName,
-                // address: rawOutput.address,
                 time: formattedStart,
                 specialization: rawOutput.specialization,
                 email: email
@@ -121,7 +110,7 @@ module.exports = (bookingLoader, timeSlots) => {
             // Declare message parameters
             var data = {
                 from: from_who,
-                to: booking.email, // email to be computed
+                to: booking.email, // email to be computed from auth0
                 subject: 'Your appointment confirmation for ' + booking.time,
                 text: `
                 This email is to confirm your appointment on ${booking.time}.
@@ -144,8 +133,7 @@ module.exports = (bookingLoader, timeSlots) => {
     // Endpoint to view a booking
     bookings.get('/:id', (req,res) => {
         var rawOutput = {}
-        // var validBooking = true;
-        
+
         // Retrieve booking
         bookingLoader.getBooking({
             id: req.params.id,
@@ -158,17 +146,12 @@ module.exports = (bookingLoader, timeSlots) => {
                 timeSlot: output[0].startTime,
                 specialist: output[0].specialist
                 };
-            // } else {
-            //     console.log('INVALID BOOKING!!')
-            //     validBooking = false;
-            // }
 
             return DialogueAvailabilitiesDataLoader.getAllUserData()
         })
         .then(data=>{
             // Get all reference arrays
             var professionals = DialogueAvailabilitiesDataLoader.getAllProfessionals(data);
-            var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
             var specializations = DialogueAvailabilitiesDataLoader.getAllSpecializations(data);
             
             // Use userId to find firstName, lastName and locationId in professionals
@@ -176,15 +159,7 @@ module.exports = (bookingLoader, timeSlots) => {
                 if (professional.id == rawOutput.specialist) {
                     rawOutput.firstName = professional.firstName;
                     rawOutput.lastName = professional.lastName;
-                    rawOutput.locationId = professional.locationId;
                     rawOutput.specId = professional.specId
-                }
-            })
-            
-            // Use locationId to find address in locations
-            locations.forEach(location=>{
-                if (location.id == rawOutput.locationId) {
-                    rawOutput.address = location.address;
                 }
             })
             
@@ -200,18 +175,13 @@ module.exports = (bookingLoader, timeSlots) => {
                 id: rawOutput.id,
                 firstName: rawOutput.firstName,
                 lastName: rawOutput.lastName,
-                address: rawOutput.address,
                 time: rawOutput.timeSlot,
                 specialization: rawOutput.specialization
             };
 
             // Return output
             return res.json(formattedOutput);
-            // if (validBooking) {
-            //     return res.json(formattedOutput);
-            // } else {
-            //     return res.json({invalidBooking: !validBooking});
-            // }
+
         })
         .catch(err => res.status(403).json(err))
     }) 

@@ -14,6 +14,7 @@ const DialogueBookingsDataLoader = require('./lib/dialogue-bookings.js');
 // Controllers
 const availabilities = require('./controllers/availabilities.js');
 const bookings = require('./controllers/bookings.js');
+const mybookings = require('./controllers/mybookings.js')
 
 const connection = mysql.createPool({user: 'root', database: 'dialogueApp'})
 const bookingLoader = new DialogueBookingsDataLoader(connection);
@@ -26,7 +27,7 @@ app.use(bodyParser.json());
 app.use(jwt({secret: process.env.AUTH0_SECRET}));
 app.use('/availabilities', availabilities(timeSlots));
 app.use('/bookings', bookings(bookingLoader, timeSlots));
-
+app.use('/mybookings', mybookings(bookingLoader));
 
 // Start the server
 const port = process.env.PORT || 3000;
