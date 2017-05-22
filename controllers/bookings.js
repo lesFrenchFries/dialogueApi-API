@@ -110,13 +110,13 @@ module.exports = (bookingLoader, timeSlots) => {
             // Declare message parameters
             var data = {
                 from: from_who,
-                to: booking.email, // email to be computed from auth0
+                to: booking.email, // EMAIL TO BE COMPUTED FROM AUTH0
                 subject: 'Your appointment confirmation for ' + booking.time,
                 text: `
                 This email is to confirm your appointment on ${booking.time}.
                 ${booking.specialization}: ${booking.lastName}, ${booking.firstName}
                 Booking link: https://dialogueapp-api-sebastienvuong.c9users.io/bookings/${booking.id}
-                ` // Booking link to be changed when hosted online
+                ` // BOOKING LINK TO BE CHANGED WHEN PUT ON ONLINE SERVER
             }
             
             mailgun.messages().send(data, function (error, body) {
