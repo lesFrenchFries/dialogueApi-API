@@ -7,7 +7,7 @@ const DialogueAvailabilitiesDataLoader = require('../lib/dialogue-availabilities
 
 module.exports = (bookingLoader, timeSlots) => {
     const bookings = express.Router();
-    
+
     // Endpoint to create a booking
     bookings.post('/', (req,res) => {
         const api_key = 'key-688361c93fe7397aebfb4c178222bc7f';
@@ -20,11 +20,11 @@ module.exports = (bookingLoader, timeSlots) => {
         var sub = req.user.sub;
         var spec = req.body.spec;
         var email = req.body.mail;
-        console.log(req.body.mail)
-        
+        var avatar = req.body.picture;
+
         // Format start time for booking
         var formattedStart = moment(date).format('YYYY-MM-DD') + " " + time + ":00";
-        
+
         // Compute and format end time for booking
         var timeInputs = time.split(':');
         var endMinutes = parseInt(timeInputs[1])+20;
@@ -36,15 +36,15 @@ module.exports = (bookingLoader, timeSlots) => {
             endHours = timeInputs[0];
         }
         var formattedEnd = moment(date).format('YYYY-MM-DD') + " " + endHours + ":" + endMinutes + ":00";
-        
+
         // Preparing data for booking
         var bookingData = {
             sub: sub,
-            startTime: formattedStart, 
-            endTime: formattedEnd, 
+            startTime: formattedStart,
+            endTime: formattedEnd,
             location: Math.ceil(10*Math.random()), // WE AREN'T USING THIS AS OF NOW
         };
-        
+
         var rawOutput = {};
 
         // Compute userId
@@ -66,7 +66,7 @@ module.exports = (bookingLoader, timeSlots) => {
         // Create booking
         .then(()=>{
             return bookingLoader.createBooking(bookingData)
-        })    
+        })
         .then(id => {
             rawOutput.id = id[0].id;
             return DialogueAvailabilitiesDataLoader.getAllUserData()
@@ -76,7 +76,7 @@ module.exports = (bookingLoader, timeSlots) => {
             var professionals = DialogueAvailabilitiesDataLoader.getAllProfessionals(data);
             // var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
             var specializations = DialogueAvailabilitiesDataLoader.getAllSpecializations(data);
-            
+
             // Use userId to find firstName, lastName and locationId in professionals
             professionals.forEach(professional=>{
                 if (professional.id == bookingData.specialist) {
@@ -86,22 +86,22 @@ module.exports = (bookingLoader, timeSlots) => {
                     rawOutput.specId = professional.specId
                 }
             })
-            
+
             // // Use locationId to find address in locations
             // locations.forEach(location=>{
             //     if (location.id == rawOutput.locationId) {
             //         rawOutput.address = location.address;
             //     }
             // })
-            
+
             // Use specId to find specialization in specializations
             specializations.forEach(spec=>{
                 if (spec.id == rawOutput.specId[0]) {
                     rawOutput.specialization = spec.spec;
                 }
             })
-            
-            // Format output 
+
+            // Format output
             var formattedOutput = {
                 id: rawOutput.id,
                 firstName: rawOutput.firstName,
@@ -109,9 +109,10 @@ module.exports = (bookingLoader, timeSlots) => {
                 // address: rawOutput.address,
                 time: formattedStart,
                 specialization: rawOutput.specialization,
-                email: email
+                email: email,
+                avatar: avatar
             };
-            
+
             // Return output
             return formattedOutput;
         })
@@ -123,13 +124,62 @@ module.exports = (bookingLoader, timeSlots) => {
                 from: from_who,
                 to: booking.email, // email to be computed
                 subject: 'Your appointment confirmation for ' + booking.time,
-                text: `
-                This email is to confirm your appointment on ${booking.time}.
-                ${booking.specialization}: ${booking.lastName}, ${booking.firstName}
-                Booking link: https://dialogueapp-api-sebastienvuong.c9users.io/bookings/${booking.id}
+                html: `
+                <html><body style="margin: 0;"><table cellpadding="0" cellspacing="0" width="100%">
+                    <tbody style="color: #0d4a68; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+                        <tr style="background-color: #26bdf0;">
+                          <td>
+                              <table>
+                                  <tr>
+                                      <td style="height: 37;">
+                                          <img src="https://dialogue.co/wp-content/themes/dialogue/library/img/logo-white.png" width="150" height="35" style="display: block;">
+                                      </td>
+                                      <td style="width:100%;"></td>
+                                      <td>
+                                          <img src="${booking.avatar}" alt="avatar" style="border:1px solid; border-radius: 50%; height: 50px; width: 50px;">
+                                      </td>
+                                  </tr>
+                              </table>
+                          <td>
+                        </td>
+                    </tr>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table  cellpadding="0" cellspacing="0" width="90%" align="center" style="color: #0d4a68; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px; margin: 0;">
+                                    <tr>
+                                        <td height="40"></td>
+                                    </tr>
+                                    <tr height="30">
+                                        <td align="center">
+                                            This email is to confirm your appointment on <b>${booking.time}</b>
+                                        </td>
+                                    </tr>
+                                    <tr height="30">
+                                        <td align="center">
+                                            ${booking.specialization}: ${booking.firstName}, ${booking.lastName}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td height="40"></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <td style="border-bottom: 1px solid #0d4a68; border-top: 1px solid #0d4a68; background-color: lightgray; height: 35px;">
+                            <table  cellpadding="0" cellspacing="0" width="95%" align="center">
+                                <tr>
+                                    <td style="color: #0d4a68; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+                                    Booking link: https://dialogueapp-api-sebastienvuong.c9users.io/bookings/${booking.id}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tbody>
+                </table></body></html>
                 ` // Booking link to be changed when hosted online
             }
-            
+
             mailgun.messages().send(data, function (error, body) {
                 console.log(body);
             })
@@ -140,12 +190,12 @@ module.exports = (bookingLoader, timeSlots) => {
         })
         .catch(console.error);
     })
-    
+
     // Endpoint to view a booking
     bookings.get('/:id', (req,res) => {
         var rawOutput = {}
         // var validBooking = true;
-        
+
         // Retrieve booking
         bookingLoader.getBooking({
             id: req.params.id,
@@ -170,7 +220,7 @@ module.exports = (bookingLoader, timeSlots) => {
             var professionals = DialogueAvailabilitiesDataLoader.getAllProfessionals(data);
             var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
             var specializations = DialogueAvailabilitiesDataLoader.getAllSpecializations(data);
-            
+
             // Use userId to find firstName, lastName and locationId in professionals
             professionals.forEach(professional=>{
                 if (professional.id == rawOutput.specialist) {
@@ -180,22 +230,22 @@ module.exports = (bookingLoader, timeSlots) => {
                     rawOutput.specId = professional.specId
                 }
             })
-            
+
             // Use locationId to find address in locations
             locations.forEach(location=>{
                 if (location.id == rawOutput.locationId) {
                     rawOutput.address = location.address;
                 }
             })
-            
+
             // Use specId to find specialization in specializations
             specializations.forEach(spec=>{
                 if (/*validBooking && */spec.id == rawOutput.specId[0]) {
                     rawOutput.specialization = spec.spec;
                 }
             })
-            
-            // Format output 
+
+            // Format output
             var formattedOutput = {
                 id: rawOutput.id,
                 firstName: rawOutput.firstName,
@@ -214,7 +264,7 @@ module.exports = (bookingLoader, timeSlots) => {
             // }
         })
         .catch(err => res.status(403).json(err))
-    }) 
+    })
 
     return bookings;
 };
