@@ -1,4 +1,5 @@
 const express = require('express');
+
 const moment = require('moment');
 
 module.exports = (timeSlots) => {
@@ -32,6 +33,8 @@ module.exports = (timeSlots) => {
             return temp;
         })
         .then(data => { // Formatting output data for front-end
+        .then(data=>timeSlots.getFreeSlots(data))
+        .then(data=>{
             var output1 = data.map(day=>{
                 var output2 = {
                     date: day.date,
