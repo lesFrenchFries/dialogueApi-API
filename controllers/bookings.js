@@ -36,12 +36,12 @@ module.exports = (bookingLoader, timeSlots) => {
             endHours = timeInputs[0];
         }
         var formattedEnd = moment(date).format('YYYY-MM-DD') + " " + endHours + ":" + endMinutes + ":00";
-
+        
         // Preparing data for booking
         var bookingData = {
             sub: sub,
-            startTime: formattedStart,
-            endTime: formattedEnd,
+            startTime: formattedStart, 
+            endTime: formattedEnd, 
             location: Math.ceil(10*Math.random()), // WE AREN'T USING THIS AS OF NOW
         };
 
@@ -66,33 +66,24 @@ module.exports = (bookingLoader, timeSlots) => {
         // Create booking
         .then(()=>{
             return bookingLoader.createBooking(bookingData)
-        })
-        .then(id => {
-            rawOutput.id = id[0].id;
+        })    
+        .then(booking => {
+            rawOutput.id = booking[0].id;
             return DialogueAvailabilitiesDataLoader.getAllUserData()
         })
         .then(data => {
             // Get all reference arrays
             var professionals = DialogueAvailabilitiesDataLoader.getAllProfessionals(data);
-            // var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
             var specializations = DialogueAvailabilitiesDataLoader.getAllSpecializations(data);
-
-            // Use userId to find firstName, lastName and locationId in professionals
+            
+          // Use userId to find firstName, lastName and locationId in professionals
             professionals.forEach(professional=>{
                 if (professional.id == bookingData.specialist) {
                     rawOutput.firstName = professional.firstName;
                     rawOutput.lastName = professional.lastName;
-                    // rawOutput.locationId = professional.locationId;
                     rawOutput.specId = professional.specId
                 }
             })
-
-            // // Use locationId to find address in locations
-            // locations.forEach(location=>{
-            //     if (location.id == rawOutput.locationId) {
-            //         rawOutput.address = location.address;
-            //     }
-            // })
 
             // Use specId to find specialization in specializations
             specializations.forEach(spec=>{
@@ -106,7 +97,6 @@ module.exports = (bookingLoader, timeSlots) => {
                 id: rawOutput.id,
                 firstName: rawOutput.firstName,
                 lastName: rawOutput.lastName,
-                // address: rawOutput.address,
                 time: formattedStart,
                 specialization: rawOutput.specialization,
                 email: email,
@@ -190,11 +180,10 @@ module.exports = (bookingLoader, timeSlots) => {
         })
         .catch(console.error);
     })
-
+    
     // Endpoint to view a booking
     bookings.get('/:id', (req,res) => {
         var rawOutput = {}
-        // var validBooking = true;
 
         // Retrieve booking
         bookingLoader.getBooking({
@@ -208,17 +197,12 @@ module.exports = (bookingLoader, timeSlots) => {
                 timeSlot: output[0].startTime,
                 specialist: output[0].specialist
                 };
-            // } else {
-            //     console.log('INVALID BOOKING!!')
-            //     validBooking = false;
-            // }
 
             return DialogueAvailabilitiesDataLoader.getAllUserData()
         })
         .then(data=>{
             // Get all reference arrays
             var professionals = DialogueAvailabilitiesDataLoader.getAllProfessionals(data);
-            var locations = DialogueAvailabilitiesDataLoader.getAllLocations(data);
             var specializations = DialogueAvailabilitiesDataLoader.getAllSpecializations(data);
 
             // Use userId to find firstName, lastName and locationId in professionals
@@ -226,15 +210,7 @@ module.exports = (bookingLoader, timeSlots) => {
                 if (professional.id == rawOutput.specialist) {
                     rawOutput.firstName = professional.firstName;
                     rawOutput.lastName = professional.lastName;
-                    rawOutput.locationId = professional.locationId;
                     rawOutput.specId = professional.specId
-                }
-            })
-
-            // Use locationId to find address in locations
-            locations.forEach(location=>{
-                if (location.id == rawOutput.locationId) {
-                    rawOutput.address = location.address;
                 }
             })
 
@@ -250,21 +226,15 @@ module.exports = (bookingLoader, timeSlots) => {
                 id: rawOutput.id,
                 firstName: rawOutput.firstName,
                 lastName: rawOutput.lastName,
-                address: rawOutput.address,
                 time: rawOutput.timeSlot,
                 specialization: rawOutput.specialization
             };
 
             // Return output
             return res.json(formattedOutput);
-            // if (validBooking) {
-            //     return res.json(formattedOutput);
-            // } else {
-            //     return res.json({invalidBooking: !validBooking});
-            // }
         })
         .catch(err => res.status(403).json(err))
-    })
-
+    }) 
     return bookings;
 };
+
