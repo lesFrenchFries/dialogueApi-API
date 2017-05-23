@@ -12,7 +12,7 @@ module.exports = (bookingLoader, timeSlots) => {
     bookings.post('/', (req,res) => {
         const api_key = 'key-688361c93fe7397aebfb4c178222bc7f';
         const domain = 'sandbox360d58a0a54e4130994c396babfee2ba.mailgun.org';
-        const from_who = 'teamfrenchfries.mtl@gmail.com';
+        const from_who = 'Dialogue<teamfrenchfries.mtl@gmail.com>';
 
         // Request data extraction
         var date = req.body.date; // 2000-04-13T00:00:00.000Z
@@ -136,7 +136,7 @@ module.exports = (bookingLoader, timeSlots) => {
                                       </td>
                                       <td style="width:100%;"></td>
                                       <td>
-                                          <img src="${booking.avatar}" alt="avatar" style="border:1px solid; border-radius: 50%; height: 50px; width: 50px;">
+                                          <img src="${booking.avatar}" alt="avatar" style="border-radius: 50%; height: 50px; width: 50px;">
                                       </td>
                                   </tr>
                               </table>
@@ -169,7 +169,7 @@ module.exports = (bookingLoader, timeSlots) => {
                         <td style="border-bottom: 1px solid #0d4a68; border-top: 1px solid #0d4a68; background-color: lightgray; height: 35px;">
                             <table  cellpadding="0" cellspacing="0" width="95%" align="center">
                                 <tr>
-                                    <td style="color: #0d4a68; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+                                    <td style="color: #0d4a68; font-family: Arial, sans-serif; font-size: 12px; line-height: 20px;">
                                     Booking link: https://dialogueapp-api-sebastienvuong.c9users.io/bookings/${booking.id}
                                     </td>
                                 </tr>
